@@ -8,10 +8,10 @@ if os.path.exists('../.env'):
 
 import uvicorn
 from fastapi import FastAPI
-from .controllers.driver_controller import driver_router
-from .models.base import Base
+from backend.controllers.driver_controller import driver_router
+from backend.models.base import Base
 from fastapi_sqlalchemy import DBSessionMiddleware
-from .settings.db_settings import DBSettings
+from backend.settings.db_settings import DBSettings
 
 
 app = FastAPI(openapi_prefix="/api/v1")
