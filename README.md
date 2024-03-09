@@ -65,8 +65,19 @@ feat(frontend): Добавить кнопку "Войти"
 - Установить все зависомсти из requirements.txt
 - Создать файл .env по шаблону из .env.tmpl (файл необходимо создать рядом с .env.tmpl)
 - Для запуска backend прилжения необходимо запустить файл backend/main.py
+- > Swagger: http://localhost:9000/docs
 
 ### Запуск через Docker
 
 - Склонировать репозитроий на свой компьютер
 - Создать файл .env по шаблону из .env.tmpl (файл необходимо создать рядом с .env.tmpl)
+- Запустить docker-compose.dev.yml
+- > Swagger: http://localhost:9000/docs
+
+> Полезные команды для работы с docker и docker-compose
+- Собрать: `docker-compose -f docker-compose.dev.yml build`
+- Запустить: `docker-compose -f docker-compose.dev.yml up -d`
+- Убить: `docker-compose -f docker-compose.dev.yml down -v`
+- Посмотреть список всех активных контейнеров: `docker ps`
+- Посмотреть список всех контейнеров: `docker ps -a`
+- Посмотреть логи контейнера: `docker logs -f <container id/container name>`
