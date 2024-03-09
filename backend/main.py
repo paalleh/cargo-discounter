@@ -1,16 +1,25 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import os
+from dotenv import load_dotenv
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+if os.path.exists('../.env'):
+    load_dotenv('../.env')
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+import uvicorn
+from fastapi import FastAPI
+from controllers.driver_controller import driver_router
+from models.base import Base
+from fastapi_sqlalchemy import DBSessionMiddleware
+from settings.db_settings import DBSettings
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+app = FastAPI(openapi_prefix="/api/v1")
+app.add_middleware(DBSessionMiddleware, db_url=f'postgresql+psycopg2://{DBSettings.CONNECTION_DATA}')
+
+app.include_router(driver_router)
+
+
+if __name__ == "__main__":
+    Base.metadata.create_all(bind=DBSettings.engine)
+    uvicorn.run(app, port=9000)
