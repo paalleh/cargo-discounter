@@ -16,24 +16,16 @@ class DriverService:
         if type(updated_driver) is Exception:
             return updated_driver
 
-        phone = ""
-        location = ""
-        driver_license = b''
-
-        if updated_driver.phone is not None:
-            phone = updated_driver.phone
-        if updated_driver.location is not None:
-            phone = updated_driver.location
-        if updated_driver.driver_license is not None:
-            phone = updated_driver.driver_license
-
         driver = UpdateDriver(
             id=updated_driver.id,
             first_name=updated_driver.first_name,
             last_name=updated_driver.last_name,
-            phone=phone,
-            location=location,
-            driver_license=driver_license,
+            phone=updated_driver.phone
+            if updated_driver.phone is not None else None,
+            location=updated_driver.location
+            if updated_driver.location is not None else None,
+            driver_license=updated_driver.driver_license
+            if updated_driver.driver_license is not None else None,
             is_blocked=updated_driver.is_blocked
         )
 
