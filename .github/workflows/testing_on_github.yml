@@ -19,5 +19,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run Flake
         uses: py-actions/flake8@v2
+        with:
+          max-line-length: "100"
       - name: Run tests
         run: python -m unittest backend.tests.test_demo
