@@ -17,5 +17,7 @@ jobs:
           python-version: "3.12"
       - name: install dependencies
         run: pip install -r requirements.txt
+      - name: Run Flake
+        run: flake8 .
       - name: Run tests
         run: python -m unittest backend.tests.test_demo
