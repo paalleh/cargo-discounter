@@ -35,18 +35,9 @@ class DriverCRUD(DBOperations):
         if driver_exist is None:
             return Exception("Driver is not exists")
 
-        if driver.phone is not None:
-            driver_exist.phone = driver.phone
-        if driver.driver_license is not None:
-            driver_exist.driver_license = driver.driver_license
-        if driver.location is not None:
-            driver_exist.location = driver.location
-        if driver.first_name is not None:
-            driver_exist.first_name = driver.first_name
-        if driver.last_name is not None:
-            driver_exist.last_name = driver.last_name
-        if driver.is_blocked is not None:
-            driver_exist.is_blocked = driver.is_blocked
+        for key, value in driver.dict().items():
+            if value is not None:
+                setattr(driver_exist, key, value)
 
         await self.db_update()
 
