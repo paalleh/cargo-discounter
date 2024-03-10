@@ -15,7 +15,10 @@ from backend.settings.db_settings import DBSettings
 
 
 app = FastAPI(openapi_prefix="/api/v1")
-app.add_middleware(DBSessionMiddleware, db_url=f'postgresql+psycopg2://{DBSettings.CONNECTION_DATA}')
+app.add_middleware(
+    DBSessionMiddleware,
+    db_url=f'postgresql+psycopg2://{DBSettings.CONNECTION_DATA}'
+)
 
 app.include_router(driver_router)
 
