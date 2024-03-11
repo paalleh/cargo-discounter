@@ -11,4 +11,6 @@ class DBSettings:
 
     CONNECTION_DATA = f"{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_MAIN_DATABASE}"
 
-    engine = create_engine(f'postgresql+psycopg2://{CONNECTION_DATA}')
+    SQL_ALCHEMY_CONNECTION_URL = f"postgresql+psycopg2://{CONNECTION_DATA}"
+
+    engine = create_engine(SQL_ALCHEMY_CONNECTION_URL)
