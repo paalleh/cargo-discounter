@@ -21,5 +21,6 @@ jobs:
         uses: py-actions/flake8@v2
         with:
           max-line-length: "100"
+          exclude: "backend/migrations"
       - name: Run tests
         run: python -m unittest backend.tests.test_demo
