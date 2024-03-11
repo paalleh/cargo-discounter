@@ -6,8 +6,8 @@ class Driver(Base):
     __tablename__ = "driver"
 
     id = Column(Integer, primary_key=True)
-    first_name = Column(String)
-    last_name = Column(String)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     location = Column(String, nullable=True)
     driver_license = Column(String, nullable=True)
