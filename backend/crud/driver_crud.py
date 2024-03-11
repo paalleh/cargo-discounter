@@ -4,16 +4,16 @@ from fastapi_sqlalchemy import db
 
 from backend.crud.db_operations import DBOperations
 from backend.models.models import Driver
-from backend.schemas.driver import NewDriver, UpdateDriver
+from backend.schemas.driver import SchemaDriver
 
 
 class DriverCRUD(DBOperations):
-    async def _check_existence(self, driver_id: int) -> Type[Driver] | None:
+    async def get_driver(self, driver_id: int) -> Type[Driver] | None:
         driver = db.session.query(Driver).filter(Driver.id == driver_id).first()
         return driver
 
-    async def add_driver(self, new_driver: NewDriver) -> Exception:
-        driver_exist = await self._check_existence(driver_id=new_driver.id)
+    async def add_driver(self, new_driver: SchemaDriver) -> Exception:
+        driver_exist = await self.get_driver(driver_id=new_driver.id)
 
         if driver_exist is not None:
             return Exception("Driver already exist")
@@ -26,11 +26,12 @@ class DriverCRUD(DBOperations):
             location=new_driver.location,
             driver_license=new_driver.driver_license,
             is_blocked=new_driver.is_blocked
+            if new_driver.is_blocked is not None else False
         )
         await self.db_write(driver)
 
-    async def update_driver(self, driver: UpdateDriver) -> Exception | Type[Driver]:
-        driver_exist = await self._check_existence(driver_id=driver.id)
+    async def update_driver(self, driver: SchemaDriver) -> Exception | Type[Driver]:
+        driver_exist = await self.get_driver(driver_id=driver.id)
 
         if driver_exist is None:
             return Exception("Driver is not exists")
