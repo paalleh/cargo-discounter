@@ -1,5 +1,8 @@
 from sqlalchemy import Column, String, Integer, Boolean
-from backend.models.base import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+
+Base = declarative_base()
 
 
 class Driver(Base):

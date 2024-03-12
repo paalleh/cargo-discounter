@@ -9,7 +9,6 @@ if os.path.exists('../.env'):
 import uvicorn
 from fastapi import FastAPI
 from backend.controllers.driver_controller import driver_router
-from backend.models.base import Base
 from fastapi_sqlalchemy import DBSessionMiddleware
 from backend.settings.db_settings import DBSettings
 
@@ -24,5 +23,4 @@ app.include_router(driver_router)
 
 
 if __name__ == "__main__":
-    Base.metadata.create_all(bind=DBSettings.engine)
     uvicorn.run(app, port=9000)
