@@ -24,14 +24,12 @@ async def add_car(new_car: SchemaCar):
 @car_router.get("/{driver_id}", response_model=List[SchemaCar])
 async def get_driver_car(driver_id: int):
     cars = await car_service.get_car_list(driver_id=driver_id)
-
     return cars
 
 
 @car_router.patch("/", response_model=SchemaCar)
 async def update_car(car: SchemaCar):
     updated_car = await car_service.update_car(car=car)
-
     if type(updated_car) is Exception:
         raise HTTPException(status_code=400, detail=str(updated_car))
 
@@ -44,5 +42,5 @@ async def delete_car(car_id: int):
 
     if type(deleted_car_id) is Exception:
         raise HTTPException(status_code=400, detail=str(deleted_car_id))
-    
+
     return deleted_car_id
