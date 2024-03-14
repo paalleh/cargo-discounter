@@ -27,3 +27,13 @@ class Car(Base):
     load_capacity = Column(Float, nullable=True)
     volume = Column(Float, nullable=True)
     driver_id = Column(Integer, ForeignKey('driver.id', ondelete='CASCADE'), nullable=False)
+
+
+class Customer(Base):
+    __tablename__ = "customer"
+
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    is_blocked = Column(Boolean, default=False)
