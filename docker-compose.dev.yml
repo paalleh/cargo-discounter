@@ -7,5 +7,5 @@ services:
       dockerfile: backend/Dockerfile
     container_name: backend
     ports:
-      - "9000:9000"
+      - "8000:8000"
     restart: always
