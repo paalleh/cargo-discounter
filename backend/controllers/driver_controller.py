@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile
 from fastapi.exceptions import HTTPException
 from backend.services.driver_service import DriverService
 from backend.schemas.driver import SchemaDriver

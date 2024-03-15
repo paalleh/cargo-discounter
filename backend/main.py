@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from backend.controllers.driver_controller import driver_router
 from backend.controllers.car_controller import car_router
 from backend.controllers.customer_controller import customer_router
+from backend.controllers.test_c import test_router
 from fastapi_sqlalchemy import DBSessionMiddleware
 from backend.settings.db_settings import DBSettings
 
@@ -24,6 +25,7 @@ app.add_middleware(
 app.include_router(driver_router)
 app.include_router(car_router)
 app.include_router(customer_router)
+app.include_router(test_router)
 
 
 if __name__ == "__main__":
