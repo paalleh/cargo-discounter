@@ -93,3 +93,8 @@ feat(frontend): Добавить кнопку "Войти"
 ## Работа с alembic
 - После изменений в структуре бд необходимо выполнить команду: `alembic revision --autogenerate -m "Комментарий к изменениям"`
 - Применить изменения: `alembic upgrade head`
+
+## Ссылки stage
+> Swagger: http://64.23.210.118:8000/docs
+> 
+> Minio: http://64.23.210.118:9001/
