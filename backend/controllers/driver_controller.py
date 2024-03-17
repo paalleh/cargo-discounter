@@ -1,7 +1,7 @@
-from fastapi import APIRouter, UploadFile
+from fastapi import APIRouter, UploadFile, Form, File
 from fastapi.exceptions import HTTPException
 from backend.services.driver_service import DriverService
-from backend.schemas.driver import SchemaDriver
+from backend.schemas.driver import SchemaDriver, SchemaBaseDriver
 
 driver_router = APIRouter(prefix='/driver')
 
@@ -11,8 +11,8 @@ driver_service = DriverService()
 
 
 @driver_router.post("/", response_model=SchemaDriver)
-async def add_driver(new_driver: SchemaDriver):
-    exception = await driver_service.add_driver(new_driver=new_driver)
+async def add_driver(new_driver: SchemaBaseDriver, driver_license: UploadFile = File(...)):
+    exception = await driver_service.add_driver(new_driver=new_driver, driver_license=driver_license)
     if exception is not None:
         raise HTTPException(status_code=400, detail=str(exception))
 
@@ -27,6 +27,11 @@ async def change_driver(update_driver: SchemaDriver):
         raise HTTPException(status_code=400, detail=str(driver))
 
     return driver
+
+
+@driver_router.patch("/driver_license", response_model=SchemaDriver)
+async def change_driver_license():
+    pass
 
 
 @driver_router.get("/{driver_id}", response_model=SchemaDriver)
