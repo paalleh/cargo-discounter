@@ -41,3 +41,13 @@ class CustomerCRUD(DBOperations):
         await self.db_update()
 
         return customer_for_updating
+
+    async def delete_customer(self, customer_id: int) -> Exception | int:
+        customer = await self.get_customer(customer_id)
+
+        if customer is None:
+            return Exception("Customer does not exist")
+
+        await self.db_delete(customer)
+
+        return customer_id

@@ -37,3 +37,13 @@ async def get_driver(driver_id: int):
         raise HTTPException(status_code=400, detail=str(driver))
 
     return driver
+
+
+@driver_router.delete("/", response_model=int)
+async def delete_driver(driver_id: int):
+    deleted_driver_id = await driver_service.delete_driver(driver_id=driver_id)
+
+    if type(deleted_driver_id) is Exception:
+        raise HTTPException(status_code=400, detail=str(deleted_driver_id))
+
+    return deleted_driver_id
