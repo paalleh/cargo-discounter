@@ -13,7 +13,7 @@ if os.path.exists('../.env'):
 print(os.getenv("CUSTOMER_BOT_TOKEN"))
 logging.basicConfig(level=logging.INFO)
 bot = Bot(os.getenv("CUSTOMER_BOT_TOKEN"))
-print(bot)
+# print(bot)
 # bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
