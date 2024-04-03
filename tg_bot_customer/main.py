@@ -47,6 +47,7 @@ async def send_customer(customer_id, first_name, last_name, phone):
 
 
 # Функция для обработки команды /start
+
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     customer_id = message.from_user.id
