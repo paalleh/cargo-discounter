@@ -83,6 +83,11 @@ feat(frontend): Добавить кнопку "Войти"
 - Посмотреть список всех контейнеров: `docker ps -a`
 - Посмотреть логи контейнера: `docker logs -f <container id/container name>`
 
+### Запуск через Makefile
+- Собрать: `make build`
+- Запустить: `make up`
+- Убить: `make down`
+
 #### Работа с alembic в docker
 
 Чтобы работать с командами alembic, например прокинуть миграции необходимо:
