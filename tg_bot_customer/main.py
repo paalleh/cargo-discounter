@@ -88,7 +88,9 @@ async def contacts(message: types.Message):
     # Здесь добавить логику для получения и передачи телефонного номера в функцию check_user
 
     '''if not is_blocked:
-        await send_message("Для создания заказа нажмите 'Создать заказ'. Для работы с текущими заказами нажмите 'Текущие заказы'.", message.chat.id)
+        await send_message(
+        "Для создания заказа нажмите 'Создать заказ'. Для работы с текущими заказами нажмите 'Текущие заказы'.",
+         message.chat.id)
 
         # Создаем клавиатуру с кнопками "Создать заказ" и "Текущие заказы"
         keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -96,8 +98,12 @@ async def contacts(message: types.Message):
         button_current_orders = KeyboardButton("Текущие заказы")
         keyboard.add(button_create_order, button_current_orders)
 
-        await message.answer("Для создания заказа нажмите 'Создать заказ'. Для работы с текущими заказами нажмите 'Текущие заказы'.", reply_markup=keyboard)
-'''
+        await message.answer(
+        "Для создания заказа нажмите 'Создать заказ'. 
+        Для работы с текущими заказами нажмите 'Текущие заказы'.", 
+        reply_markup=keyboard
+        )
+    '''
 
 
 if __name__ == '__main__':
