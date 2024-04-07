@@ -43,3 +43,13 @@ class DriverCRUD(DBOperations):
         await self.db_update()
 
         return driver_exist
+
+    async def delete_driver(self, driver_id: int) -> Exception | int:
+        driver = await self.get_driver(driver_id=driver_id)
+
+        if driver is None:
+            return Exception("Driver is not exists")
+
+        await self.db_delete(driver)
+
+        return driver_id

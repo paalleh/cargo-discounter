@@ -43,3 +43,6 @@ class CustomerService:
 
         updated_customer = await self._customer_db_model_to_schema_model(customer=updated_customer)
         return updated_customer
+
+    async def delete_customer(self, customer_id: int) -> Exception | int:
+        return await self.customer_crud.delete_customer(customer_id)

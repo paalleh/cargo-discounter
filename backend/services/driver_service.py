@@ -45,3 +45,6 @@ class DriverService:
         current_driver = await self._driver_db_model_to_schema_model(driver=driver)
 
         return current_driver
+
+    async def delete_driver(self, driver_id: int) -> Exception | int:
+        return await self.driver_crud.delete_driver(driver_id=driver_id)

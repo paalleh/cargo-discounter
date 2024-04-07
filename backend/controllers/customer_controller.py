@@ -35,3 +35,13 @@ async def update_customer(customer: SchemaCustomer):
         raise HTTPException(status_code=400, detail=str(customer))
 
     return customer
+
+
+@customer_router.delete("/", response_model=int)
+async def delete_customer(customer_id: int):
+    deleted_customer_id = await customer_service.delete_customer(customer_id=customer_id)
+
+    if type(deleted_customer_id) is Exception:
+        raise HTTPException(status_code=400, detail=str(deleted_customer_id))
+
+    return deleted_customer_id
