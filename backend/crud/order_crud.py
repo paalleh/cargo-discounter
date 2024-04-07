@@ -1,3 +1,7 @@
+from typing import Type
+
+from fastapi_sqlalchemy import db
+
 from backend.crud.db_operations import DBOperations
 from backend.models.order_status import OrderStatus
 from backend.schemas.order import SchemaOrder
@@ -18,5 +22,23 @@ class OrderCRUD(DBOperations):
         )
 
         await self.db_write(order)
+
+        return order
+
+    async def get_order_by_id(self, order_id: int) -> Type[Order] | None:
+        order = db.session.query(Order).filter(Order.id == order_id).first()
+        return order
+
+    async def update_order(self, patch_data: SchemaOrder) -> Type[Order] | None:
+        order = await self.get_order_by_id(order_id=patch_data.id)
+
+        if order is None:
+            return order
+
+        for key, value in patch_data.dict().items():
+            if value is not None:
+                setattr(order, key, value)
+
+        await self.db_update()
 
         return order

@@ -77,6 +77,8 @@ class Order(Base):
 
 
 class Offers(Base):
+    __tablename__ = "offers"
+
     id = Column(Integer, primary_key=True)
     order_id = Column(Integer, ForeignKey('order.id', ondelete='CASCADE'))
     driver_id = Column(Integer, ForeignKey('driver.id', ondelete='CASCADE'))
