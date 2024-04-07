@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, Date
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
-from backend.models.order_status import OrderStatus
+from backend.models.order_status import StatusOrder
 
 Base = declarative_base()
 
@@ -71,7 +71,7 @@ class Order(Base):
     car_id = Column(Integer, ForeignKey('car.id', ondelete='CASCADE'), nullable=True)
     volume = Column(Float, nullable=True)
     weight = Column(Float, nullable=True)
-    status = Column(Enum(OrderStatus))
+    status = Column(Enum(StatusOrder))
     customer_estimation_id = Column(
         Integer,
         ForeignKey('customer_estimation.id', ondelete='CASCADE'),
