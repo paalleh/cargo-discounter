@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-# from aiogram.types import ParseMode
+from aiogram.types import ParseMode
 import requests
 
 if os.path.exists('../.env'):
@@ -54,8 +54,10 @@ async def start(message: types.Message):
     response = await check_customer(customer_id)
     if response.status_code == 400:
         await send_message(
-            f"{customer_id}Для возможности создания заказов необходимо зарегистрироваться. Для регистрации нажмите кнопку 'Отправить номер'.",
-            message.chat.id)
+            f"""{customer_id} Для возможности создания заказов необходимо зарегистрироваться.
+            Для регистрации нажмите кнопку 'Отправить номер'.""",
+            message.chat.id
+        )
         # Создаем клавиатуру с кнопкой "Отправить номер"
         keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
         button = KeyboardButton("Отправить номер", request_contact=True)
@@ -87,7 +89,9 @@ async def contacts(message: types.Message):
     # Здесь добавить логику для получения и передачи телефонного номера в функцию check_user
 
     '''if not is_blocked:
-        await send_message("Для создания заказа нажмите 'Создать заказ'. Для работы с текущими заказами нажмите 'Текущие заказы'.", message.chat.id)
+        await send_message(
+        "Для создания заказа нажмите 'Создать заказ'. Для работы с текущими заказами нажмите 'Текущие заказы'.",
+         message.chat.id)
 
         # Создаем клавиатуру с кнопками "Создать заказ" и "Текущие заказы"
         keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -95,8 +99,12 @@ async def contacts(message: types.Message):
         button_current_orders = KeyboardButton("Текущие заказы")
         keyboard.add(button_create_order, button_current_orders)
 
-        await message.answer("Для создания заказа нажмите 'Создать заказ'. Для работы с текущими заказами нажмите 'Текущие заказы'.", reply_markup=keyboard)
-'''
+        await message.answer(
+        "Для создания заказа нажмите 'Создать заказ'.
+        Для работы с текущими заказами нажмите 'Текущие заказы'.",
+        reply_markup=keyboard
+        )
+    '''
 
 
 if __name__ == '__main__':
