@@ -3,7 +3,7 @@ from typing import Type
 from fastapi_sqlalchemy import db
 
 from backend.crud.db_operations import DBOperations
-from backend.models.order_status import OrderStatus
+from backend.models.order_status import StatusOrder
 from backend.schemas.order import SchemaOrder
 from backend.models.models import Order
 
@@ -18,7 +18,7 @@ class OrderCRUD(DBOperations):
             customer_id=new_order.customer_id,
             volume=new_order.volume,
             weight=new_order.weight,
-            status=OrderStatus.new
+            status=StatusOrder.new
         )
 
         await self.db_write(order)
