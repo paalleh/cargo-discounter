@@ -90,4 +90,4 @@ class Offers(Base):
     id = Column(Integer, primary_key=True)
     order_id = Column(Integer, ForeignKey('order.id', ondelete='CASCADE'))
     driver_id = Column(Integer, ForeignKey('driver.id', ondelete='CASCADE'))
-    price = Column(Integer, nullable=True)
+    price = Column(Float, nullable=True)
