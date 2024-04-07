@@ -72,8 +72,16 @@ class Order(Base):
     volume = Column(Float, nullable=True)
     weight = Column(Float, nullable=True)
     status = Column(Enum(OrderStatus))
-    customer_estimation_id = Column(Integer, ForeignKey('customer_estimation.id', ondelete='CASCADE'), nullable=True)
-    driver_estimation_id = Column(Integer, ForeignKey('driver_estimation.id', ondelete='CASCADE'), nullable=True)
+    customer_estimation_id = Column(
+        Integer,
+        ForeignKey('customer_estimation.id', ondelete='CASCADE'),
+        nullable=True
+    )
+    driver_estimation_id = Column(
+        Integer,
+        ForeignKey('driver_estimation.id', ondelete='CASCADE'),
+        nullable=True
+    )
 
 
 class Offers(Base):

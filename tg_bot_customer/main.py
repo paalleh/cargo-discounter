@@ -54,7 +54,8 @@ async def start(message: types.Message):
     response = await check_customer(customer_id)
     if response.status_code == 400:
         await send_message(
-            f"{customer_id}Для возможности создания заказов необходимо зарегистрироваться. Для регистрации нажмите кнопку 'Отправить номер'.",
+            f"""{customer_id} Для возможности создания заказов необходимо зарегистрироваться. 
+            Для регистрации нажмите кнопку 'Отправить номер'.""",
             message.chat.id)
         # Создаем клавиатуру с кнопкой "Отправить номер"
         keyboard = ReplyKeyboardMarkup(resize_keyboard=True)

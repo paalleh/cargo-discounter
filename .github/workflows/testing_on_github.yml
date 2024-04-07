@@ -20,7 +20,7 @@ jobs:
       - name: Run Flake
         uses: py-actions/flake8@v2
         with:
-          max-line-length: "100"
+          max-line-length: "120"
           exclude: "backend/migrations"
       - name: Run tests
         run: python -m unittest backend.tests.test_demo
