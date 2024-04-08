@@ -12,7 +12,7 @@ services:
 
   nginx:
     image: nginx:1.19.3
-    container_name: nginx
+    container_name: nginx-cargo-discounter
     ports:
       - "80:81"
     volumes:
