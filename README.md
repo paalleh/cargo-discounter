@@ -62,7 +62,7 @@ feat(frontend): Добавить кнопку "Войти"
 ### Локальная сборка
 
 - Склонировать репозитроий на свой компьютер
-- Установить все зависомсти из requirements.txt
+- Установить все зависомсти из requirements.txt `pip install -r requirements.txt`
 - Создать файл .env по шаблону из .env.tmpl (файл необходимо создать рядом с .env.tmpl)
 - Прокинуть миграции к вашей базе данных с помощью команды `alembic upgrade head`
 - Для запуска backend прилжения необходимо запустить файл backend/main.py
@@ -101,5 +101,7 @@ feat(frontend): Добавить кнопку "Войти"
 
 ## Ссылки stage
 > Swagger: http://64.23.210.118:8000/docs
+> 
+> или Swagger под доменом: http://klosep-dev.ru/cargo-discounter/docs
 > 
 > Minio: http://64.23.210.118:9001/
