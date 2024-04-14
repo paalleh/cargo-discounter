@@ -105,3 +105,5 @@ feat(frontend): Добавить кнопку "Войти"
 > или Swagger под доменом: http://klosep-dev.ru/cargo-discounter/docs
 > 
 > Minio: http://64.23.210.118:9001/
+> 
+> Бот заказчика: https://t.me/test_cds_bot
