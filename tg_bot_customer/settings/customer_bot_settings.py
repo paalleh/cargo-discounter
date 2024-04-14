@@ -11,7 +11,7 @@ class BotSettings:
     BASE_API_URL = os.getenv("BASE_API_URL")
 
     greeting_message_unregistered: str = """
-    Здравствуйте, это бот cargo-discounter, 
+    Здравствуйте, это бот cargo-discounter,
     который позволяет быстро находить водителей для грузоперевозок.
     Перед использованием необходимо зарегистрироваться.
     """
