@@ -19,3 +19,12 @@ services:
 #      - ./nginx.conf:/etc/nginx/conf.d/default.conf
 #    depends_on:
 #      - backend
+
+  customer-bot:
+    build:
+      context: .
+      dockerfile: tg_bot_customer/Dockerfile
+    container_name: customer-bot
+    ports:
+      - "7000:7000"
+    restart: always

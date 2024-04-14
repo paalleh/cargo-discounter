@@ -1,113 +1,170 @@
-import logging
-import json
-import os
-from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from aiogram.types import ParseMode
-import requests
+from aiogram import F, Bot, Dispatcher, types, Router
+from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
-if os.path.exists('../.env'):
-    load_dotenv('../.env')
+from tg_bot_customer.settings.customer_bot_settings import bot_settings
+from tg_bot_customer.backend_service.backend_service import backend_service
+from tg_bot_customer.backend_service.customer_status import StatusCustomer
+from tg_bot_customer.keyboards.registr_keyboard import registr_keyboard
+from tg_bot_customer.keyboards.main_keyboard import main_keyboard
+from tg_bot_customer.keyboards.edit_profile_keyboard import edit_profile_keyboard
 
-print(os.getenv("CUSTOMER_BOT_TOKEN"))
-logging.basicConfig(level=logging.INFO)
-bot = Bot(os.getenv("CUSTOMER_BOT_TOKEN"))
-# print(bot)
-# bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
+bot = Bot(bot_settings.BOT_CUSTOMER_TOKEN)
 
 
-# Функция для отправки сообщений
-async def send_message(message, chat_id):
-    await bot.send_message(chat_id, message, parse_mode=ParseMode.HTML)
+class NewCustomer(StatesGroup):
+    first_name = State()
+    last_name = State()
+    phone = State()
 
 
-# Функция для выполнения запроса GET к серверу
-async def check_customer(customer_id):
-    response = requests.get(f'http://64.23.210.118:8000/api/v1/customer/?customer_id={customer_id}')
-    return response
+class UpdateCustomer(StatesGroup):
+    first_name = State()
+    last_name = State()
+    phone = State()
 
 
-# Функция для отправки данных на сервер запросом POST
-async def send_customer(customer_id, first_name, last_name, phone):
-    data = {
-        'id': customer_id,
-        'first_name': first_name,
-        'last_name': last_name,
-        'phone': phone,
-        'is_blocked': 'false'
-    }
-    print(f"{first_name}Дело сделано")
-    d = json.dumps(data)
-    print(d)
-    response = requests.post('http://64.23.210.118:8000/api/v1/customer/?', data=d)
-    print(response)
-    return response
+customer_router = Router()
+dp.include_router(customer_router)
 
 
-# Функция для обработки команды /start
+@dp.message(CommandStart())
+async def command_start_handler(message):
+    is_customer_exist = await backend_service.check_customer(int(message.from_user.id))
 
-@dp.message_handler(commands=['start'])
-async def start(message: types.Message):
-    customer_id = message.from_user.id
-    response = await check_customer(customer_id)
-    if response.status_code == 400:
-        await send_message(
-            f"""{customer_id} Для возможности создания заказов необходимо зарегистрироваться.
-            Для регистрации нажмите кнопку 'Отправить номер'.""",
-            message.chat.id
-        )
-        # Создаем клавиатуру с кнопкой "Отправить номер"
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-        button = KeyboardButton("Отправить номер", request_contact=True)
-        keyboard.add(button)
-        await message.answer("Для регистрации нажмите кнопку 'Отправить номер'.", reply_markup=keyboard)
-    else:
-        # Проверка на бан.
-        customer_id = response.json()
-        if customer_id["is_blocked"]:
-            await message.answer("Вы заблокированы.")
-        else:
-            await message.answer("Вы можете приступить к работе.")
+    match is_customer_exist:
+        case StatusCustomer.error:
+            await message.answer(
+                bot_settings.error_message
+            )
+        case StatusCustomer.exist:
+            await message.answer(
+                bot_settings.greeting_message_registered,
+                reply_markup=main_keyboard
+            )
+        case StatusCustomer.not_exist:
+            await message.answer(
+                bot_settings.greeting_message_unregistered,
+                reply_markup=registr_keyboard
+            )
+        case StatusCustomer.not_full_profile:
+            await message.answer(
+                bot_settings.not_full_profile,
+                reply_markup=registr_keyboard
+            )
 
 
-# Функция для обработки нажатия кнопки "Отправить номер"
-# @dp.message_handler(lambda message: message.text == 'Отправить номер')
-# async def send_phone_number(message: types.Message):
-@dp.message_handler(content_types=types.ContentType.CONTACT)
-async def contacts(message: types.Message):
-    await message.answer(f"Ваш номер: {message.contact.phone_number}", reply_markup=types.ReplyKeyboardRemove())
-    response = await send_customer(message.from_user.id, message.contact.first_name, message.contact.last_name,
-                                   message.contact.phone_number)
-    # print(message.from_user.id, message.contact.first_name, message.contact.last_name,message.contact.phone_number)
-    if response.status_code == 200:
-        await message.answer("Поздравляем, вы зарегистрированы!")
-    elif response.status_code == 422:
-        await message.answer("Ошибка регистрации.")
+@dp.message(F.text.lower() == "зарегистрироваться")
+async def registration(message: types.Message, state: FSMContext):
+    await state.set_state(NewCustomer.first_name)
+    await message.answer("Введите имя: ")
 
-    # Здесь добавить логику для получения и передачи телефонного номера в функцию check_user
 
-    '''if not is_blocked:
-        await send_message(
-        "Для создания заказа нажмите 'Создать заказ'. Для работы с текущими заказами нажмите 'Текущие заказы'.",
-         message.chat.id)
+@customer_router.message(NewCustomer.first_name)
+async def process_first_name(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(first_name=message.text)
+    await state.set_state(NewCustomer.last_name)
 
-        # Создаем клавиатуру с кнопками "Создать заказ" и "Текущие заказы"
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-        button_create_order = KeyboardButton("Создать заказ")
-        button_current_orders = KeyboardButton("Текущие заказы")
-        keyboard.add(button_create_order, button_current_orders)
+    await message.answer("Введите фамилию: ")
 
-        await message.answer(
-        "Для создания заказа нажмите 'Создать заказ'.
-        Для работы с текущими заказами нажмите 'Текущие заказы'.",
-        reply_markup=keyboard
-        )
-    '''
+
+@customer_router.message(NewCustomer.last_name)
+async def process_last_name(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(last_name=message.text)
+    await state.set_state(NewCustomer.phone)
+
+    await message.answer("Введите номер телефона: ")
+
+
+@customer_router.message(NewCustomer.phone)
+async def process_phone(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(phone=message.text)
+    await state.clear()
+    data["id"] = message.from_user.id
+    await backend_service.update_customer(data=data)
+
+    await message.answer("Регистрация успешно завершена", reply_markup=main_keyboard)
+
+
+@dp.message(F.text.lower() == "мой профиль")
+async def get_profile(message: types.Message):
+    profile = await backend_service.get_customer(customer_id=message.from_user.id)
+
+    msg = ""
+    for key, value in profile.json().items():
+        if key != "id" and key != "is_blocked":
+            match key:
+                case "first_name":
+                    key = "Имя"
+                case "last_name":
+                    key = "Фамилия"
+                case "phone":
+                    key = "Номер телефона"
+
+            msg += f"{key}: {value}\n"
+
+    await message.answer(
+        msg,
+        reply_markup=edit_profile_keyboard
+    )
+
+
+@dp.callback_query(F.data == "edit_first_name")
+async def edit_first_name(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UpdateCustomer.first_name)
+    await callback.answer()
+    await callback.message.answer("Введите новое имя: ")
+
+
+@customer_router.message(UpdateCustomer.first_name)
+async def update_first_name(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(first_name=message.text)
+    await state.clear()
+    data["id"] = message.from_user.id
+    await backend_service.update_customer(data=data)
+
+    await message.answer("Имя успешно изменено")
+    await get_profile(message)
+
+
+@dp.callback_query(F.data == "edit_last_name")
+async def edit_last_name(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UpdateCustomer.last_name)
+    await callback.answer()
+    await callback.message.answer("Введите новую фамилию: ")
+
+
+@customer_router.message(UpdateCustomer.last_name)
+async def update_last_name(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(last_name=message.text)
+    await state.clear()
+    data["id"] = message.from_user.id
+    await backend_service.update_customer(data=data)
+
+    await message.answer("Фамилия успешно изменена")
+    await get_profile(message)
+
+
+@dp.callback_query(F.data == "edit_phone")
+async def edit_phone(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UpdateCustomer.phone)
+    await callback.answer()
+    await callback.message.answer("Введите новый номер телефона: ")
+
+
+@customer_router.message(UpdateCustomer.phone)
+async def update_phone(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(phone=message.text)
+    await state.clear()
+    data["id"] = message.from_user.id
+    await backend_service.update_customer(data=data)
+
+    await message.answer("Телефон успешно изменен")
+    await get_profile(message)
 
 
 if __name__ == '__main__':
-    from aiogram import executor
-
-    executor.start_polling(dp, skip_updates=True)
+    print("Bot start polling!")
+    dp.run_polling(bot)
