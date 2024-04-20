@@ -37,8 +37,4 @@ class BackandService:
         print(r.content)
 
 
-
 backend_service = BackandService()
-
-
-
