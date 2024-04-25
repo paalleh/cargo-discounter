@@ -189,7 +189,7 @@ async def update_phone(message: types.Message, state: FSMContext) -> None:
 
 
 @dp.callback_query(F.data == "edit_location")
-async def edit_last_name(callback: types.CallbackQuery, state: FSMContext):
+async def edit_location(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(UpdateDriver.location)
     await callback.answer()
     await callback.message.answer("Введите новую геолокацию: ")
