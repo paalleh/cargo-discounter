@@ -134,58 +134,59 @@ async def get_profile(message: types.Message):
         reply_markup=edit_profile_keyboard
     )
 
+
 @dp.callback_query(F.data == "edit_first_name")
 async def edit_first_name(callback: types.CallbackQuery, state: FSMContext):
-     await state.set_state(UpdateDriver.first_name)
-     await callback.answer()
-     await callback.message.answer("Введите новое имя: ")
+    await state.set_state(UpdateDriver.first_name)
+    await callback.answer()
+    await callback.message.answer("Введите новое имя: ")
 
 
 @driver_router.message(UpdateDriver.first_name)
 async def update_first_name(message: types.Message, state: FSMContext) -> None:
-     data = await state.update_data(first_name=message.text)
-     await state.clear()
-     data["id"] = message.from_user.id
-     await backend_service.update_driver(data=data)
+    data = await state.update_data(first_name=message.text)
+    await state.clear()
+    data["id"] = message.from_user.id
+    await backend_service.update_driver(data=data)
 
-     await message.answer("Имя успешно изменено")
-     await get_profile(message)
+    await message.answer("Имя успешно изменено")
+    await get_profile(message)
 
 
 @dp.callback_query(F.data == "edit_last_name")
 async def edit_last_name(callback: types.CallbackQuery, state: FSMContext):
-     await state.set_state(UpdateDriver.last_name)
-     await callback.answer()
-     await callback.message.answer("Введите новую фамилию: ")
+    await state.set_state(UpdateDriver.last_name)
+    await callback.answer()
+    await callback.message.answer("Введите новую фамилию: ")
 
 
 @driver_router.message(UpdateDriver.last_name)
 async def update_last_name(message: types.Message, state: FSMContext) -> None:
-     data = await state.update_data(last_name=message.text)
-     await state.clear()
-     data["id"] = message.from_user.id
-     await backend_service.update_driver(data=data)
+    data = await state.update_data(last_name=message.text)
+    await state.clear()
+    data["id"] = message.from_user.id
+    await backend_service.update_driver(data=data)
 
-     await message.answer("Фамилия успешно изменена")
-     await get_profile(message)
+    await message.answer("Фамилия успешно изменена")
+    await get_profile(message)
 
 
 @dp.callback_query(F.data == "edit_phone")
 async def edit_phone(callback: types.CallbackQuery, state: FSMContext):
-     await state.set_state(UpdateDriver.phone)
-     await callback.answer()
-     await callback.message.answer("Введите новый номер телефона: ")
+    await state.set_state(UpdateDriver.phone)
+    await callback.answer()
+    await callback.message.answer("Введите новый номер телефона: ")
 
 
 @driver_router.message(UpdateDriver.phone)
 async def update_phone(message: types.Message, state: FSMContext) -> None:
-     data = await state.update_data(phone=message.text)
-     await state.clear()
-     data["id"] = message.from_user.id
-     await backend_service.update_driver(data=data)
+    data = await state.update_data(phone=message.text)
+    await state.clear()
+    data["id"] = message.from_user.id
+    await backend_service.update_driver(data=data)
 
-     await message.answer("Телефон успешно изменен")
-     await get_profile(message)
+    await message.answer("Телефон успешно изменен")
+    await get_profile(message)
 
 
 @dp.callback_query(F.data == "edit_location")
@@ -222,6 +223,7 @@ async def update_driver_license(message: types.Message, state: FSMContext) -> No
 
     await message.answer("Водительские права успешно изменены")
     await get_profile(message)
+
 
 if __name__ == '__main__':
     print("Bot start polling!")
