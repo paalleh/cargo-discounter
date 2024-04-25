@@ -1,4 +1,3 @@
-#регистрация.
 from aiogram import F, Bot, Dispatcher, types, Router
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
@@ -22,12 +21,14 @@ class NewDriver(StatesGroup):
     location = State()
     driver_license = State()
 
+
 class UpdateDriver(StatesGroup):
     first_name = State()
     last_name = State()
     phone = State()
     location = State()
     driver_license = State()
+
 
 driver_router = Router()
 dp.include_router(driver_router)
