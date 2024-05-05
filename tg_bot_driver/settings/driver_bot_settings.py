@@ -17,7 +17,10 @@ class BotSettings:
     """
 
     greeting_message_registered: str = """
-    Добро пожаловать!
+    Добро пожаловать! Ваш профиль активен
+    """
+    car_registered: str = """
+    Профиль вашего автомобиля заполнен!
     """
 
     error_message: str = """

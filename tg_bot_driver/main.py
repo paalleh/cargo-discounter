@@ -6,9 +6,14 @@ from aiogram.fsm.state import State, StatesGroup
 from tg_bot_driver.settings.driver_bot_settings import bot_settings
 from tg_bot_driver.backend_service.backend_service import backend_service
 from tg_bot_driver.backend_service.driver_status import StatusDriver
+from tg_bot_driver.backend_service.car_status import StatusCar
 from tg_bot_driver.keyboards.registr_keyboard import registr_keyboard
 from tg_bot_driver.keyboards.main_keyboard import main_keyboard
 from tg_bot_driver.keyboards.edit_profile_keyboard import edit_profile_keyboard
+from tg_bot_driver.keyboards.add_car_keyboard import add_car_keyboard
+from tg_bot_driver.keyboards.edit_car_keyboard import edit_car_keyboard
+from tg_bot_driver.keyboards.choose_car_keyboard import get_check_car_keyboard
+
 
 dp = Dispatcher()
 bot = Bot(bot_settings.BOT_DRIVER_TOKEN)
@@ -20,6 +25,23 @@ class NewDriver(StatesGroup):
     phone = State()
     location = State()
     driver_license = State()
+
+
+class NewCar(StatesGroup):
+    car_number = State()
+    vendor = State()
+    model = State()
+    load_capacity = State()
+    volume = State()
+
+
+class UpdateCar(StatesGroup):
+    position_id = State()
+    car_number = State()
+    vendor = State()
+    model = State()
+    load_capacity = State()
+    volume = State()
 
 
 class UpdateDriver(StatesGroup):
@@ -34,10 +56,15 @@ driver_router = Router()
 dp.include_router(driver_router)
 
 
+car_router = Router()
+dp.include_router(car_router)
+
+
 @dp.message(CommandStart())
 async def command_start_handler(message):
     await message.answer("Я работаю !")
     is_driver_exist = await backend_service.check_driver(int(message.from_user.id))
+    is_car_exist = await backend_service.check_car(int(message.from_user.id))
 
     match is_driver_exist:
         case StatusDriver.error:
@@ -58,6 +85,27 @@ async def command_start_handler(message):
             await message.answer(
                 bot_settings.not_full_profile,
                 reply_markup=registr_keyboard
+            )
+
+    match is_car_exist:
+        case StatusCar.error:
+            await message.answer(
+                bot_settings.error_message
+            )
+        case StatusCar.exist:
+            await message.answer(
+                bot_settings.car_registered,
+                reply_markup=main_keyboard
+            )
+        case StatusCar.not_exist:
+            await message.answer(
+                bot_settings.greeting_message_unregistered,
+                reply_markup=add_car_keyboard
+            )
+        case StatusCar.not_full_profile:
+            await message.answer(
+                bot_settings.not_full_profile,
+                reply_markup=add_car_keyboard
             )
 
 
@@ -224,6 +272,121 @@ async def update_driver_license(message: types.Message, state: FSMContext) -> No
 
     await message.answer("Водительские права успешно изменены")
     await get_profile(message)
+
+
+@dp.message(F.text.lower() == "добавить автомобиль")
+async def add_car(message: types.Message, state: FSMContext):
+    await state.set_state(NewCar.car_number)
+    await message.answer("Введите регистрационный номер автомобиля: ")
+
+
+@car_router.message(NewCar.car_number)
+async def add_car_number(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(car_number=message.text)
+    await state.set_state(NewCar.vendor)
+
+    await message.answer("Введите марку автомобиля: ")
+
+
+@car_router.message(NewCar.vendor)
+async def add_car_vendor(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(vendor=message.text)
+    await state.set_state(NewCar.model)
+
+    await message.answer("Введите модель автомобиля: ")
+
+
+@car_router.message(NewCar.model)
+async def add_car_model(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(model=message.text)
+    await state.set_state(NewCar.load_capacity)
+
+    await message.answer("Введите тип кузова:")
+
+
+@car_router.message(NewCar.load_capacity)
+async def add_car_load_capacity(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(load_capacity=float(message.text))
+    await state.set_state(NewCar.volume)
+
+    await message.answer("Введите объем кузова: ")
+
+
+@car_router.message(NewCar.volume)
+async def add_car_volume(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(volume=float(message.text))
+    await state.clear()
+    data["driver_id"] = message.from_user.id
+    await backend_service.add_car(data=data)
+
+    await message.answer("Автомобиль добавлен! ")
+
+
+@dp.message(F.text.lower() == "редактировать автомобиль")
+async def edit_car(message: types.Message):
+    car_profile = await backend_service.get_car(driver_id=message.from_user.id)
+
+    msg = "Список ваших автомобилей:\n"
+    initial_id: int = 0
+
+    for car in car_profile.json():
+        msg += "\n"
+        msg += f"Ваш авто N: {initial_id}\n\n"
+        for key, value in car.items():
+            if key != "car_id" and key != "driver_id":
+                match key:
+                    case "car_number":
+                        key = "Регистрационный номер автомобиля"
+                    case "vendor":
+                        key = "Марка автомобиля"
+                    case "model":
+                        key = "Модель автомобиля"
+                    case "load_capacity":
+                        key = "Тип кузова"
+                    case "volume":
+                        key = "Объем"
+
+                msg += f"{key}: {value}\n"
+        initial_id += 1
+
+    choose_car_keyboard = get_check_car_keyboard(len(car_profile.json()))
+
+    await message.answer(
+        msg,
+        reply_markup=choose_car_keyboard
+    )
+
+
+@dp.callback_query(F.data.find("Редактировать автомобиль номер:") and F.data != "edit_car_number")
+async def choose_car(callback: types.CallbackQuery, state: FSMContext):
+    car_position_id_str = callback.data.replace("edit_car_", "")
+    await state.set_state(UpdateCar.position_id)
+    await state.update_data(position_id=car_position_id_str)
+    await callback.answer()
+    await callback.message.answer("Выберите параметры для редактирования", reply_markup=edit_car_keyboard)
+
+
+@dp.callback_query(F.data == "edit_car_number")
+async def edit_car_number(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UpdateCar.car_number)
+    await callback.answer()
+    await callback.message.answer("Введите новый регистрационный номер: ")
+
+
+@driver_router.message(UpdateCar.car_number)
+async def update_car_number(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(car_number=message.text)
+    await state.clear()
+
+    car_profile = await backend_service.get_car(driver_id=message.from_user.id)
+    car = car_profile.json()[int(data["position_id"])]
+
+    update_data = {"car_id": car["car_id"], "car_number": data["car_number"]}
+
+    await backend_service.update_car(data=update_data)
+
+    await message.answer("Регистрационный номер успешно изменен")
+    await edit_car(message)
 
 
 if __name__ == '__main__':
