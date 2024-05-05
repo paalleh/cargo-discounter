@@ -322,16 +322,6 @@ async def add_car_volume(message: types.Message, state: FSMContext) -> None:
     await message.answer("Автомобиль добавлен! ")
 
 
-@driver_router.message(NewDriver.driver_license)
-async def add_car_volume(message: types.Message, state: FSMContext) -> None:
-    data = await state.update_data(driver_license=message.text)
-    await state.clear()
-    data["id"] = message.from_user.id
-    await backend_service.update_driver(data=data)
-
-    await message.answer("Регистрация прошла успешно! ")
-
-
 @dp.message(F.text.lower() == "редактировать автомобиль")
 async def edit_car(message: types.Message):
     car_profile = await backend_service.get_car(driver_id=message.from_user.id)
