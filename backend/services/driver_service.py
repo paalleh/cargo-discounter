@@ -9,7 +9,7 @@ class DriverService:
     def __init__(self):
         self.driver_crud = DriverCRUD()
 
-    async def _driver_db_model_to_schema_model(self, driver: Type[Driver]):
+    async def _driver_db_model_to_schema_model(self, driver: Type[Driver]) -> SchemaDriver:
         current_driver = SchemaDriver(
             id=driver.id,
             first_name=driver.first_name,
@@ -48,3 +48,13 @@ class DriverService:
 
     async def delete_driver(self, driver_id: int) -> Exception | int:
         return await self.driver_crud.delete_driver(driver_id=driver_id)
+
+    async def get_all_drivers(self) -> list[SchemaDriver]:
+        drivers_lst_model = await self.driver_crud.get_all_drivers()
+        drivers_lst_schema = []
+
+        for driver in drivers_lst_model:
+            driver_schema = await self._driver_db_model_to_schema_model(driver=driver)
+            drivers_lst_schema.append(driver_schema)
+
+        return drivers_lst_schema

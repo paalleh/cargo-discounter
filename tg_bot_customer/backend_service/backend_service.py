@@ -8,6 +8,7 @@ class BackendService:
     def __init__(self):
         self.base_url = bot_settings.BASE_API_URL
         self.customer_prefix = 'customer/'
+        self.order_prefix = 'order/'
 
     async def get_customer(self, customer_id: int) -> requests.Response:
         response = requests.get(self.base_url + self.customer_prefix + f'?customer_id={customer_id}')
@@ -35,6 +36,9 @@ class BackendService:
             "id": customer_id
         }
         requests.post(self.base_url + self.customer_prefix, json=data)
+
+    async def create_order(self, data: dict[str, str | float]):
+        requests.post(self.base_url + self.order_prefix, json=data)
 
 
 backend_service = BackendService()

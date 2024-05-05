@@ -26,6 +26,13 @@ class UpdateCustomer(StatesGroup):
     phone = State()
 
 
+class CreateOrder(StatesGroup):
+    start_location = State()
+    finish_location = State()
+    volume = State()
+    weight = State()
+
+
 customer_router = Router()
 dp.include_router(customer_router)
 
@@ -163,6 +170,51 @@ async def update_phone(message: types.Message, state: FSMContext) -> None:
 
     await message.answer("Телефон успешно изменен")
     await get_profile(message)
+
+
+@dp.message(F.text.lower() == "создать заказ")
+async def create_order(message: types.Message, state: FSMContext):
+    await state.set_state(CreateOrder.start_location)
+    await message.answer("Введите начальную точку маршрута: ")
+
+
+@customer_router.message(CreateOrder.start_location)
+async def process_start_location(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(start_location=message.text)
+    await state.set_state(CreateOrder.finish_location)
+
+    await message.answer("Введите конечную точку маршрута: ")
+
+
+@customer_router.message(CreateOrder.finish_location)
+async def process_finish_location(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(finish_location=message.text)
+    await state.set_state(CreateOrder.weight)
+
+    await message.answer("Введите вес груза: ")
+
+
+@customer_router.message(CreateOrder.weight)
+async def process_weight(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(weight=message.text)
+    await state.set_state(CreateOrder.volume)
+
+    await message.answer("Введите объем груза: ")
+
+
+@customer_router.message(CreateOrder.volume)
+async def process_volume(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(volume=message.text)
+    await state.clear()
+
+    try:
+        data["weight"] = float(data["weight"])
+        data["volume"] = float(data["volume"])
+        await backend_service.create_order(data=data)
+
+        await message.answer("Заказ успешно создан!")
+    except Exception:
+        await message.answer("Параметры вес и объем должны быть заданы числом.\n Попробуйте еще раз:)")
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, List
 
 from fastapi_sqlalchemy import db
 
@@ -11,6 +11,10 @@ class DriverCRUD(DBOperations):
     async def get_driver(self, driver_id: int) -> Type[Driver] | None:
         driver = db.session.query(Driver).filter(Driver.id == driver_id).first()
         return driver
+
+    async def get_all_drivers(self) -> List[Type[Driver]] | None:
+        drivers_lst = db.session.query(Driver).all()
+        return drivers_lst
 
     async def add_driver(self, new_driver: SchemaDriver) -> Exception:
         driver_exist = await self.get_driver(driver_id=new_driver.id)
