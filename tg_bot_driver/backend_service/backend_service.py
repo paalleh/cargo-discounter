@@ -33,10 +33,7 @@ class BackandService:
         requests.post(url=self.base_url + self.driver_prefix, json=data)
 
     async def update_driver(self, data: dict[str, str]) -> None:
-        print(data)
-        r = requests.patch(url=self.base_url + self.driver_prefix, json=data)
-        print(r.status_code)
-        print(r.content)
+        requests.patch(url=self.base_url + self.driver_prefix, json=data)
 
     async def get_car(self, driver_id: int) -> requests.Response:
         response = requests.get(url=self.base_url + self.car_prefix + f"{driver_id}")
@@ -55,8 +52,7 @@ class BackandService:
         else:
             return StatusCar.error
 
-    async def add_car(self, car_id: int) -> None:
-        data = {"id": car_id}
+    async def add_car(self, data: dict[str, str | float]) -> None:
         requests.post(url=self.base_url + self.car_prefix, json=data)
 
     async def update_car(self, data: dict[str, str]) -> None:
