@@ -64,7 +64,6 @@ class OrderService:
 
     async def __create_message_template(self, new_order: SchemaOrder) -> str:
         msg = f"""Новый заказ!
-        
         Точка отправления: {new_order.start_location}
         Конец маршрута: {new_order.finish_location}
         Объем груза: {new_order.volume}
