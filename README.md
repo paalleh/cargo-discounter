@@ -107,3 +107,5 @@ feat(frontend): Добавить кнопку "Войти"
 > Minio: http://64.23.210.118:9001/
 > 
 > Бот заказчика: https://t.me/test_cds_bot
+> 
+> Бот водителя: https://t.me/test_cds_driver_bot
