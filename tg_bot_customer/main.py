@@ -210,6 +210,7 @@ async def process_volume(message: types.Message, state: FSMContext) -> None:
     try:
         data["weight"] = float(data["weight"])
         data["volume"] = float(data["volume"])
+        data["customer_id"] = int(message.from_user.id)
         await backend_service.create_order(data=data)
 
         await message.answer("Заказ успешно создан!")
