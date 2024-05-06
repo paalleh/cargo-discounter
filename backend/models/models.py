@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, Date, Enum
+from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, Date, Enum, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -10,7 +10,7 @@ Base = declarative_base()
 class Driver(Base):
     __tablename__ = "driver"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
     phone = Column(String, nullable=True)
@@ -28,13 +28,13 @@ class Car(Base):
     model = Column(String, nullable=True)
     load_capacity = Column(Float, nullable=True)
     volume = Column(Float, nullable=True)
-    driver_id = Column(Integer, ForeignKey('driver.id', ondelete='CASCADE'), nullable=False)
+    driver_id = Column(BigInteger, ForeignKey('driver.id', ondelete='CASCADE'), nullable=False)
 
 
 class Customer(Base):
     __tablename__ = "customer"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
     phone = Column(String, nullable=True)
@@ -66,8 +66,8 @@ class Order(Base):
     date_ending = Column(Date, nullable=True)
     start_location = Column(String, nullable=True)
     finish_location = Column(String, nullable=True)
-    driver_id = Column(Integer, ForeignKey('driver.id', ondelete='CASCADE'), nullable=True)
-    customer_id = Column(Integer, ForeignKey('customer.id', ondelete='CASCADE'), nullable=True)
+    driver_id = Column(BigInteger, ForeignKey('driver.id', ondelete='CASCADE'), nullable=True)
+    customer_id = Column(BigInteger, ForeignKey('customer.id', ondelete='CASCADE'), nullable=True)
     car_id = Column(Integer, ForeignKey('car.id', ondelete='CASCADE'), nullable=True)
     volume = Column(Float, nullable=True)
     weight = Column(Float, nullable=True)
@@ -89,5 +89,5 @@ class Offers(Base):
 
     id = Column(Integer, primary_key=True)
     order_id = Column(Integer, ForeignKey('order.id', ondelete='CASCADE'))
-    driver_id = Column(Integer, ForeignKey('driver.id', ondelete='CASCADE'))
+    driver_id = Column(BigInteger, ForeignKey('driver.id', ondelete='CASCADE'))
     price = Column(Float, nullable=True)

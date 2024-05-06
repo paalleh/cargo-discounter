@@ -40,15 +40,13 @@ class BackandService:
         response = requests.get(url=self.base_url + self.car_prefix + f"{driver_id}")
         return response
 
-    async def check_car(self, car_id: int) -> StatusCar:
-        car = await self.get_car(driver_id=car_id)
+    async def check_car(self, driver_id: int) -> StatusCar:
+        car = await self.get_car(driver_id=driver_id)
         if car.status_code == 400:
-            await self.add_car(car_id)
             return StatusCar.not_exist
         elif car.status_code == 200:
-            for value in car.json():
-                if value is None:
-                    return StatusCar.not_full_profile
+            if car.json() == []:
+                return StatusCar.not_exist
             return StatusCar.exist
         else:
             return StatusCar.error

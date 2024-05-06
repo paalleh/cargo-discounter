@@ -65,9 +65,26 @@ car_router = Router()
 dp.include_router(car_router)
 
 
+async def check_first_car(is_car_exist: StatusCar, message: types.Message):
+    match is_car_exist:
+        case StatusCar.error:
+            await message.answer(
+                bot_settings.error_message
+            )
+        case StatusCar.exist:
+            await message.answer(
+                bot_settings.car_registered,
+                reply_markup=main_keyboard
+            )
+        case StatusCar.not_exist:
+            await message.answer(
+                "Осталось добавить автомобиль)",
+                reply_markup=add_car_keyboard
+            )
+
+
 @dp.message(CommandStart())
 async def command_start_handler(message):
-    await message.answer("Я работаю !")
     is_driver_exist = await backend_service.check_driver(int(message.from_user.id))
     is_car_exist = await backend_service.check_car(int(message.from_user.id))
 
@@ -81,6 +98,7 @@ async def command_start_handler(message):
                 bot_settings.greeting_message_registered,
                 reply_markup=main_keyboard
             )
+            await check_first_car(is_car_exist=is_car_exist, message=message)
         case StatusDriver.not_exist:
             await message.answer(
                 bot_settings.greeting_message_unregistered,
@@ -90,27 +108,6 @@ async def command_start_handler(message):
             await message.answer(
                 bot_settings.not_full_profile,
                 reply_markup=registr_keyboard
-            )
-
-    match is_car_exist:
-        case StatusCar.error:
-            await message.answer(
-                bot_settings.error_message
-            )
-        case StatusCar.exist:
-            await message.answer(
-                bot_settings.car_registered,
-                reply_markup=main_keyboard
-            )
-        case StatusCar.not_exist:
-            await message.answer(
-                bot_settings.greeting_message_unregistered,
-                reply_markup=add_car_keyboard
-            )
-        case StatusCar.not_full_profile:
-            await message.answer(
-                bot_settings.not_full_profile,
-                reply_markup=add_car_keyboard
             )
 
 
@@ -159,7 +156,14 @@ async def process_driver_license(message: types.Message, state: FSMContext) -> N
     data["id"] = message.from_user.id
     await backend_service.update_driver(data=data)
 
-    await message.answer("Регистрация прошла успешно! ")
+    is_car_exist = await backend_service.check_car(int(message.from_user.id))
+
+    if is_car_exist == StatusCar.exist:
+        await message.answer("Регистрация прошла успешно!", reply_markup=main_keyboard)
+    else:
+        await message.answer("Регистрация прошла успешно! Осталось добавить автомобиль)",
+                             reply_markup=add_car_keyboard
+                             )
 
 
 @dp.message(F.text.lower() == "мой профиль")
@@ -324,7 +328,7 @@ async def add_car_volume(message: types.Message, state: FSMContext) -> None:
     data["driver_id"] = message.from_user.id
     await backend_service.add_car(data=data)
 
-    await message.answer("Автомобиль добавлен! ")
+    await message.answer("Автомобиль добавлен!", reply_markup=main_keyboard)
 
 
 @dp.message(F.text.lower() == "мой гараж")
