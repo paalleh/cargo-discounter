@@ -357,9 +357,9 @@ async def edit_car(message: types.Message):
     )
 
 
-@dp.callback_query(F.data.find("Редактировать автомобиль номер:") and F.data != "edit_car_number")
+@dp.callback_query(F.data.startswith("edit_my_car_"))
 async def choose_car(callback: types.CallbackQuery, state: FSMContext):
-    car_position_id_str = callback.data.replace("edit_car_", "")
+    car_position_id_str = callback.data.replace("edit_my_car_", "")
     await state.set_state(UpdateCar.position_id)
     await state.update_data(position_id=car_position_id_str)
     await callback.answer()
@@ -371,6 +371,35 @@ async def edit_car_number(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(UpdateCar.car_number)
     await callback.answer()
     await callback.message.answer("Введите новый регистрационный номер: ")
+
+
+@dp.callback_query(F.data == "edit_vendor")
+async def edit_vendor(callback: types.CallbackQuery, state: FSMContext):
+    print(111)
+    await state.set_state(UpdateCar.vendor)
+    await callback.answer()
+    await callback.message.answer("Введите марку автомобиля: ")
+
+
+@dp.callback_query(F.data == "edit_model")
+async def edit_model(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UpdateCar.model)
+    await callback.answer()
+    await callback.message.answer("Введите модель автомобиля: ")
+
+
+@dp.callback_query(F.data == "edit_load_capacity")
+async def edit_load_capacity(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UpdateCar.load_capacity)
+    await callback.answer()
+    await callback.message.answer("Введите тип кузова: ")
+
+
+@dp.callback_query(F.data == "edit_volume")
+async def edit_volume(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UpdateCar.volume)
+    await callback.answer()
+    await callback.message.answer("Введите объем: ")
 
 
 @driver_router.message(UpdateCar.car_number)
@@ -386,6 +415,70 @@ async def update_car_number(message: types.Message, state: FSMContext) -> None:
     await backend_service.update_car(data=update_data)
 
     await message.answer("Регистрационный номер успешно изменен")
+    await edit_car(message)
+
+
+@driver_router.message(UpdateCar.vendor)
+async def update_vendor(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(vendor=message.text)
+    await state.clear()
+
+    car_profile = await backend_service.get_car(driver_id=message.from_user.id)
+    car = car_profile.json()[int(data["position_id"])]
+
+    update_data = {"car_id": car["car_id"], "vendor": data["vendor"]}
+
+    await backend_service.update_car(data=update_data)
+
+    await message.answer("Марка успешно изменена")
+    await edit_car(message)
+
+
+@driver_router.message(UpdateCar.model)
+async def update_model(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(model=message.text)
+    await state.clear()
+
+    car_profile = await backend_service.get_car(driver_id=message.from_user.id)
+    car = car_profile.json()[int(data["position_id"])]
+
+    update_data = {"car_id": car["car_id"], "model": data["model"]}
+
+    await backend_service.update_car(data=update_data)
+
+    await message.answer("Модель успешно изменена")
+    await edit_car(message)
+
+
+@driver_router.message(UpdateCar.load_capacity)
+async def update_load_capacity(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(load_capacity=message.text)
+    await state.clear()
+
+    car_profile = await backend_service.get_car(driver_id=message.from_user.id)
+    car = car_profile.json()[int(data["position_id"])]
+
+    update_data = {"car_id": car["car_id"], "load_capacity": data["load_capacity"]}
+
+    await backend_service.update_car(data=update_data)
+
+    await message.answer("Тип кузова изменен")
+    await edit_car(message)
+
+
+@driver_router.message(UpdateCar.volume)
+async def update_volume(message: types.Message, state: FSMContext) -> None:
+    data = await state.update_data(volume=message.text)
+    await state.clear()
+
+    car_profile = await backend_service.get_car(driver_id=message.from_user.id)
+    car = car_profile.json()[int(data["position_id"])]
+
+    update_data = {"car_id": car["car_id"], "volume": data["volume"]}
+
+    await backend_service.update_car(data=update_data)
+
+    await message.answer("Объем кузова изменен")
     await edit_car(message)
 
 
