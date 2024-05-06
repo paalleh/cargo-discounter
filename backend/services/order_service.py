@@ -80,7 +80,7 @@ class OrderService:
                 'chat_id': driver.id,
                 'text': msg,
                 'reply_markup': {'inline_keyboard': [
-                    [{"text": "Откликнуться!", "callback_data": "accept"}]
+                    [{"text": "Откликнуться!", "callback_data": f"accept_{new_order.id}"}]
                 ]}
             }
 

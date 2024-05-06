@@ -10,6 +10,7 @@ class BackandService:
         self.base_url = bot_settings.BASE_API_URL
         self.driver_prefix = "driver/"
         self.car_prefix = "car/"
+        self.offer_prefix = "offer/"
 
     async def get_driver(self, driver_id: int) -> requests.Response:
         response = requests.get(url=self.base_url + self.driver_prefix + f"{driver_id}")
@@ -56,10 +57,10 @@ class BackandService:
         requests.post(url=self.base_url + self.car_prefix, json=data)
 
     async def update_car(self, data: dict[str, str]) -> None:
-        print(data)
-        r = requests.patch(url=self.base_url + self.car_prefix, json=data)
-        print(r.status_code)
-        print(r.content)
+        requests.patch(url=self.base_url + self.car_prefix, json=data)
+
+    async def create_order(self, data: dict[str, int | float]) -> None:
+        requests.post(url=self.base_url + self.offer_prefix, json=data)
 
 
 backend_service = BackandService()

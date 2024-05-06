@@ -52,6 +52,11 @@ class UpdateDriver(StatesGroup):
     driver_license = State()
 
 
+class AcceptOrder(StatesGroup):
+    order_id = State()
+    price = State()
+
+
 driver_router = Router()
 dp.include_router(driver_router)
 
@@ -375,7 +380,6 @@ async def edit_car_number(callback: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query(F.data == "edit_vendor")
 async def edit_vendor(callback: types.CallbackQuery, state: FSMContext):
-    print(111)
     await state.set_state(UpdateCar.vendor)
     await callback.answer()
     await callback.message.answer("Введите марку автомобиля: ")
@@ -480,6 +484,30 @@ async def update_volume(message: types.Message, state: FSMContext) -> None:
 
     await message.answer("Объем кузова изменен")
     await edit_car(message)
+
+
+@dp.callback_query(F.data.startswith("accept_"))
+async def create_offer(callback: types.CallbackQuery, state: FSMContext):
+    order_id = callback.data.replace("accept_", "")
+    await state.set_state(AcceptOrder.order_id)
+    await state.update_data(order_id=order_id)
+    await state.set_state(AcceptOrder.price)
+
+    await callback.answer()
+    await callback.message.answer("Введите цену выполнения заказа:")
+
+
+@driver_router.message(AcceptOrder.price)
+async def confirm_offer(message: types.Message, state: FSMContext):
+    data = await state.update_data(price=message.text)
+    await state.clear()
+
+    data["order_id"] = int(data["order_id"])
+    data["price"] = float(data["price"])
+    data["driver_id"] = int(message.from_user.id)
+
+    await backend_service.create_order(data=data)
+    await message.answer("Вы успешно откликнулись на заказ!")
 
 
 if __name__ == '__main__':

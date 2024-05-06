@@ -1,10 +1,16 @@
 from typing import Type, List
 
+import requests
+
 from backend.crud.offer_crud import OfferCRUD
 from backend.crud.order_crud import OrderCRUD
 from backend.crud.driver_crud import DriverCRUD
 from backend.schemas.offer import SchemaOffer
+from backend.schemas.order import SchemaOrder
 from backend.models.models import Offers
+from backend.settings.settings_url import SettingsURL
+from backend.services.order_service import OrderService
+from backend.services.driver_service import DriverService
 
 
 class OfferService:
@@ -12,6 +18,10 @@ class OfferService:
         self.offer_crud = OfferCRUD()
         self.order_crud = OrderCRUD()
         self.driver_crud = DriverCRUD()
+        self.driver_service = DriverService()
+        self.order_service = OrderService()
+        self.settings = SettingsURL()
+        self.base_tg_customer_url = self.settings.BASE_TG_CUSTOMER_URL
 
     async def __offer_model_to_offer_schema(self, offer: Type[Offers]) -> SchemaOffer:
         offer_schema = SchemaOffer(
@@ -39,6 +49,7 @@ class OfferService:
         offer = await self.offer_crud.add_offer(new_offer=new_offer)
 
         new_offer.id = offer.id
+        await self.__send_messages_to_tg_customer(new_offer=new_offer)
         return new_offer
 
     async def offer_details(self, offer_id: int) -> SchemaOffer | Exception:
@@ -63,3 +74,33 @@ class OfferService:
             offers_schema.append(offer_schema)
 
         return offers_schema
+
+    async def __create_message_template(self, new_offer: SchemaOffer, order: SchemaOrder) -> str:
+        driver = await self.driver_service.get_driver(driver_id=new_offer.driver_id)
+
+        msg = f""" Отклик на заказ:
+           Детали заказа:
+               Точка отправления: {order.start_location}
+               Конец маршрута: {order.finish_location}
+               Объем груза: {order.volume}
+               Вес груза: {order.weight}
+            Предложение:
+                Цена: {new_offer.price}
+                Имя водителя: {driver.first_name} {driver.last_name}
+                Телефон: {driver.phone}
+           """
+        return msg
+
+    async def __send_messages_to_tg_customer(self, new_offer: SchemaOffer) -> None:
+        order = await self.order_service.get_order_by_id(order_id=new_offer.order_id)
+        msg = await self.__create_message_template(new_offer=new_offer, order=order)
+
+        params = {
+            'chat_id': order.customer_id,
+            'text': msg,
+            'reply_markup': {'inline_keyboard': [
+                [{"text": "Принять предложение!", "callback_data": f"accept_{new_offer.driver_id}_{order.id}"}]
+            ]}
+        }
+
+        requests.get(self.base_tg_customer_url, json=params)

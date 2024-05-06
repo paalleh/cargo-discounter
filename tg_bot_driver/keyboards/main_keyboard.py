@@ -7,7 +7,7 @@ kb = [
         types.KeyboardButton(text="Редактировать автомобиль")
     ],
     [
-        types.KeyboardButton(text="Редактировать профиль"),
+        types.KeyboardButton(text="Мой профиль"),
         types.KeyboardButton(text="Заказы")
     ]
 ]
