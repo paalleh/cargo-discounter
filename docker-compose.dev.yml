@@ -28,3 +28,12 @@ services:
     ports:
       - "7000:7000"
     restart: always
+
+  driver-bot:
+    build:
+      context: .
+      dockerfile: tg_bot_driver/Dockerfile
+    container_name: driver-bot
+    ports:
+      - "7001:7001"
+    restart: always
